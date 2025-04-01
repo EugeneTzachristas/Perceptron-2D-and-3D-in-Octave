@@ -1,0 +1,45 @@
+clc; clear; close all;
+
+% Δημιουργία δεδομένων
+num_samples = 40;
+x1 = rand(num_samples/2, 3) * 4 + 1; % Πρώτη κλάση στο (1,1,1) έως (5,5,5)
+x2 = rand(num_samples/2, 3) * 4 + 6; % Δεύτερη κλάση στο (6,6,6) έως (10,10,10)
+x = [x1; x2];
+labels = [ones(num_samples/2, 1); -ones(num_samples/2, 1)];
+
+% Προσθήκη όρου μεροληψίας (bias)
+x = [ones(num_samples, 1), x];
+
+% Αρχικοποίηση βαρών
+w = zeros(4, 1);
+learning_rate = 0.1;
+epochs = 500;
+
+% Εκπαίδευση του Perceptron
+for epoch = 1:epochs
+    for i = 1:num_samples
+        y_pred = sign(w' * x(i, :)');
+        if y_pred ~= labels(i)
+            w = w + learning_rate * labels(i) * x(i, :)';
+        end
+    end
+end
+
+% Οπτικοποίηση των δεδομένων σε 3D
+figure;
+hold on;
+scatter3(x1(:,1), x1(:,2), x1(:,3), 'ro', 'filled');
+scatter3(x2(:,1), x2(:,2), x2(:,3), 'b+', 'LineWidth', 2);
+
+% Υπολογισμός και σχεδίαση του επιπέδου διαχωρισμού
+[x_vals, y_vals] = meshgrid(linspace(min(x(:,2)), max(x(:,2)), 10), linspace(min(x(:,3)), max(x(:,3)), 10));
+z_vals = -(w(2)/w(4)) * x_vals - (w(3)/w(4)) * y_vals - (w(1)/w(4));
+
+surf(x_vals, y_vals, z_vals, 'FaceAlpha', 0.5, 'EdgeColor', 'none');
+
+axis([0 12 0 12 0 12]);
+grid on;
+xlabel('X1'); ylabel('X2'); zlabel('X3');
+title('3D Perceptron Classification');
+legend('Class 1', 'Class 2');
+hold off;
